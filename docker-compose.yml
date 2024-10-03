@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Node Exporter Service
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    restart: always
+    ports:
+      - "9100:9100"  # Exposing Node Exporter port internally
+    networks:
+      - monitoring
+    command:
+      - '--web.listen-address=:9100'  # Listen on all interfaces
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:9100/metrics || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NGINX Reverse Proxy Service
+  nginx:
+    image: nginx:latest
+    container_name: nginx_rev_proxy
+    restart: always
+    depends_on:
+      - node_exporter
+    networks:
+      - monitoring
+    ports:
+      - "8443:8443"  # Expose NGINX HTTPS port externally
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf  # Mount the custom NGINX config file
+      - ./ssl_cert/nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt  # Mount the SSL cert
+      - ./ssl_cert/nginx-selfsigned.key:/etc/nginx/ssl/nginx-selfsigned.key  # Mount the SSL key
+    environment:
+      - NGINX_HOST=nginx
+      - NGINX_PORT=443
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider https://localhost || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  monitoring:
+    driver: bridge
