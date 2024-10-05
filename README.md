@@ -1,7 +1,7 @@
 # Secure-NodeExporter
-This is a Dockerized Solution to expose a Node Exporter securely over the Internet using Cloudflare Tunnel
+This is a Dockerized Solution to expose a Node Exporter securely over the Internet.
 
-It's pretty simple and just throw in a few configs to get an NGINX reverse Proxy handling the requests of your Prometheus Server. It is also configured to use a Basic Authentication and HTTPS.
+It's pretty simple and I just threw in a few configs to get an NGINX reverse Proxy handling the requests of your Prometheus Server. It is also configured to use a Basic Authentication and HTTPS.
 
 You can use Self signed Certificates e.g. using the command:
 
