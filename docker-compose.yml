@@ -1,13 +1,12 @@
 version: '3.8'
 
 services:
-  # Node Exporter Service
   node_exporter:
-    image: prom/node-exporter:latest
+    image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
     restart: always
     ports:
-      - "9100:9100"  # Exposing Node Exporter port internally
+      - "9100:9100"
     networks:
       - monitoring
     command:
@@ -18,7 +17,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # NGINX Reverse Proxy Service
   nginx:
     image: nginx:latest
     container_name: nginx_rev_proxy
@@ -28,11 +26,12 @@ services:
     networks:
       - monitoring
     ports:
-      - "8443:8443"  # Expose NGINX HTTPS port externally
+      - "8443:8443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf  # Mount the custom NGINX config file
-      - ./ssl_cert/nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt  # Mount the SSL cert
-      - ./ssl_cert/nginx-selfsigned.key:/etc/nginx/ssl/nginx-selfsigned.key  # Mount the SSL key
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./.htpasswd:/etc/nginx/.htpasswd
+      - ./ssl_cert/nginx-selfsigned.crt:/etc/nginx/ssl/nginx-selfsigned.crt
+      - ./ssl_cert/nginx-selfsigned.key:/etc/nginx/ssl/nginx-selfsigned.key
     environment:
       - NGINX_HOST=nginx
       - NGINX_PORT=443
